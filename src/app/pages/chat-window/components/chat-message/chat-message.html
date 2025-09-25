@@ -1,0 +1,23 @@
+<div class="flex items-end gap-3" [class.flex-row-reverse]="isUserMessage()">
+  @if (isUserMessage()) {
+  <img [src]="message()?.avatarUrl" alt="Sender Avatar" class="w-8 h-8 rounded-full" />
+  }
+  <div
+    class="flex flex-col"
+    [class.items-start]="isUserMessage()"
+    [class.items-end]="!isUserMessage()"
+  >
+    <div
+      class="max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl"
+      [class.bg-blue-500]="isUserMessage()"
+      [class.text-white]="isUserMessage()"
+      [class.bg-gray-800]="!isUserMessage()"
+      [class.text-gray-200]="!isUserMessage()"
+    >
+      <p class="text-sm">{{ message()?.text }}</p>
+    </div>
+    <span class="text-xs text-gray-500 mt-1 px-1">{{
+      message()?.timestamp | date : 'shortTime'
+    }}</span>
+  </div>
+</div>
