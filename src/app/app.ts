@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, inject, signal 
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ChatStore } from './state/chat.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [ RouterOutlet ],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush

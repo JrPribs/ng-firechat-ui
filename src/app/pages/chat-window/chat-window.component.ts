@@ -1,4 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, signal, viewChild, ElementRef, effect, model } from '@angular/core';
+import {
+  Component, ChangeDetectionStrategy, inject, signal, viewChild, ElementRef, effect, model, OnInit 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { FormsModule } from '@angular/forms';
@@ -14,9 +16,9 @@ import { ChatMessageComponent } from './components/chat-message/chat-message';
     FormsModule
   ],
   templateUrl: './chat-window.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChatWindowComponent {
+export class ChatWindowComponent implements OnInit {
   private chatSvc = inject(ChatService);
   readonly store = inject(ChatStore);
 
