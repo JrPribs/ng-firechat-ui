@@ -5,20 +5,18 @@ import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { ChatStore } from '../../state/chat.store';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import {
-  RouterLink, RouterLinkActive, RouterOutlet
-} from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { NewChatDialogComponent } from '../../components/new-chat-dialog/new-chat-dialog';
+import { ChatList } from './components/chat-list/chat-list';
 
 
 @Component({
   selector: 'app-chat-window',
   imports: [
+    ChatList,
     CommonModule,
     MatDialogModule,
-    RouterLink,
-    RouterLinkActive,
     RouterOutlet
   ],
   templateUrl: './chat-window.component.html',
@@ -31,9 +29,6 @@ export class ChatWindowComponent {
   readonly store = inject(ChatStore);
   readonly dialog = inject(MatDialog);
 
-  // Mobile sidebar state
-  mobileSidebarOpen = signal(false);
-
   async createNewChat(): Promise<void> {
     const result = await firstValueFrom(this.dialog.open(NewChatDialogComponent, {
       width: '300px',
@@ -44,13 +39,5 @@ export class ChatWindowComponent {
     if (result) {
       this.chatSvc.newChat(result);
     }
-  }
-
-  toggleMobileSidebar(): void {
-    this.mobileSidebarOpen.update(open => !open);
-  }
-
-  closeMobileSidebar(): void {
-    this.mobileSidebarOpen.set(false);
   }
 }

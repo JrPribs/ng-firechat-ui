@@ -5,7 +5,7 @@
     <!-- Mobile Menu Toggle Button -->
     <button
       class="md:hidden absolute top-4 left-4 z-50 text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2 bg-black border border-gray-700"
-      (click)="toggleMobileSidebar()"
+      (click)="store.toggleMobileSidebar()"
       title="Toggle Menu"
     >
       <svg
@@ -29,100 +29,22 @@
       class="w-1/3 min-w-[280px] bg-black border-r border-gray-800 flex flex-col
              md:relative md:translate-x-0 fixed inset-y-0 left-0 z-40
              transition-transform duration-300 ease-in-out
-             {{ mobileSidebarOpen() ? 'translate-x-0' : '-translate-x-full' }}"
+             {{ store.mobileSidebarOpen() ? 'translate-x-0' : '-translate-x-full' }}"
     >
       <!-- Mobile Sidebar Backdrop -->
       <div
         class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-        [class.hidden]="!mobileSidebarOpen()"
-        (click)="closeMobileSidebar()"
-        (keydown.escape)="closeMobileSidebar()"
+        [class.hidden]="!store.mobileSidebarOpen()"
+        (click)="store.closeMobileSidebar()"
+        (keydown.escape)="store.closeMobileSidebar()"
         tabindex="0"
         role="button"
         [attr.aria-label]="'Close sidebar'"
-      ></div>
-
-      <header class="p-4 border-b border-gray-800 flex justify-between items-center pt-12 md:pt-4">
-        <h1 class="text-xl font-bold text-white">Chats</h1>
-        <div class="flex items-center gap-2">
-          <!-- Mobile New Chat Button -->
-          <button
-            class="md:hidden text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2"
-            (click)="createNewChat()"
-            title="New Chat"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-          </button>
-          <!-- Desktop New Chat Button -->
-          <button
-            class="hidden md:block text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2"
-            (click)="createNewChat()"
-            title="New Chat"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-          </button>
-        </div>
-      </header>
-      <div class="flex-1 overflow-y-auto">
-        <!-- Active Conversation -->
-        @for (chat of store.chats(); track chat.id) {
-          <div
-            class="flex items-center p-4 cursor-pointer hover:bg-gray-900/50"
-            [class.bg-gray-900]="store.activeChatId() === chat.id"
-            [class.border-l-2]="store.activeChatId() === chat.id"
-            [class.border-blue-500]="store.activeChatId() === chat.id"
-            routerLink="chat/{{ chat.id }}"
-            routerLinkActive="bg-gray-900/50 border-l-2 border-blue-500"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="closeMobileSidebar()"
-            (keydown.enter)="closeMobileSidebar()"
-            (keydown.space)="closeMobileSidebar()"
-            tabindex="0"
-          >
-            <img
-              [src]="`https://picsum.photos/seed/${chat?.username}/48/48`"
-              alt="chat().username"
-              class="w-14 h-14 rounded-full mr-4"
-            />
-            <div class="flex-1">
-              <p class="font-semibold text-white">{{ chat?.username }}</p>
-              <p class="text-sm text-gray-400 truncate">{{ chat?.lastMessage }}</p>
-            </div>
-
-            <span class="text-xs text-gray-500">{{ chat?.updatedAt | date: 'MMM d, yyyy' }}</span>
-
-            @if (chat?.unread) {
-              <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-            }
-          </div>
-        }
+      >
+        <app-chat-list></app-chat-list>
       </div>
+
+      <app-chat-list></app-chat-list>
     </aside>
 
     <!-- Chat Window -->

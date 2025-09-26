@@ -20,13 +20,15 @@ interface ChatState {
   isLoading: boolean;
   activeChat: Chat | null;
   messages: Message[];
+  mobileSidebarOpen: boolean;
 }
 
 const initialState: ChatState = {
   chats: [],
   isLoading: false,
   activeChat: null,
-  messages: []
+  messages: [],
+  mobileSidebarOpen: false
 };
 
 @Injectable({ providedIn: 'root' })
@@ -94,5 +96,13 @@ withHooks({
       .subscribe(messages => patchState(this, { messages: messages as Message[] }));
 
     patchState(this, { isLoading: false });
+  }
+
+  toggleMobileSidebar(): void {
+    patchState(this, { mobileSidebarOpen: !this.mobileSidebarOpen() });
+  }
+
+  closeMobileSidebar(): void {
+    patchState(this, { mobileSidebarOpen: false });
   }
 }
