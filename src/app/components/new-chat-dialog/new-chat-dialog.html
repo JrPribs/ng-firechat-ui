@@ -1,9 +1,21 @@
-<h2 mat-dialog-title>Delete file</h2>
-<mat-dialog-content>
-  Enter a Username
-  <input type="text" [(ngModel)]="username" />
+<h2 mat-dialog-title>New Chat</h2>
+<mat-dialog-content class="!pt-4">
+  <mat-form-field class="w-full mt-2" appearance="outline">
+    <mat-label>Enter a Username</mat-label>
+    <input matInput [formControl]="username" />
+    @if (username.hasError('required')) {
+      <mat-error>Username is required</mat-error>
+    }
+  </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button matButton mat-dialog-close>Cancel</button>
-  <button matButton [mat-dialog-close]="username()" cdkFocusInitial>Create Chat</button>
+  <button
+    matButton
+    [disabled]="username.hasError('required')"
+    [mat-dialog-close]="username.value"
+    cdkFocusInitial
+  >
+    Create Chat
+  </button>
 </mat-dialog-actions>

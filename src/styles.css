@@ -3,3 +3,13 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+/* tailwind input conflict fix */
+.mdc-notched-outline__notch {
+  border-right: none;
+}
+
+.mdc-text-field__input, textarea:focus {
+  box-shadow: none;
+}

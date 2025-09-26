@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, computed, input 
+  ChangeDetectionStrategy, Component, computed, input
 } from '@angular/core';
 import { Message } from '../../../../models/message.model';
 import { CommonModule } from '@angular/common';
@@ -14,5 +14,6 @@ import { CommonModule } from '@angular/common';
 export class ChatMessageComponent {
   message = input<Message>();
 
-  isUserMessage = computed(() => this.message()?.username === 'user');
+  avatarUrl = computed(() => `https://picsum.photos/seed/${this.message()?.username}/48/48`);
+  isUserMessage = computed(() => this.message()?.username !== 'Dr. Accordo');
 }

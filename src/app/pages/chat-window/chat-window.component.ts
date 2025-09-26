@@ -1,64 +1,45 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, viewChild, ElementRef, effect, model, OnInit 
+  Component, ChangeDetectionStrategy, inject, signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
-import { FormsModule } from '@angular/forms';
 import { ChatStore } from '../../state/chat.store';
-import { Chat } from '../../models/chat.model';
-import { ChatMessageComponent } from './components/chat-message/chat-message';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import {
+  RouterLink, RouterLinkActive, RouterOutlet
+} from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { NewChatDialogComponent } from '../../components/new-chat-dialog/new-chat-dialog';
+
 
 @Component({
   selector: 'app-chat-window',
   imports: [
-    ChatMessageComponent,
     CommonModule,
-    FormsModule
+    MatDialogModule,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet
   ],
   templateUrl: './chat-window.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChatWindowComponent implements OnInit {
-  private chatSvc = inject(ChatService);
+export class ChatWindowComponent {
+
+  protected readonly title = signal('Accordo IG Agent');
+  private readonly chatSvc = inject(ChatService);
   readonly store = inject(ChatStore);
+  readonly dialog = inject(MatDialog);
 
-  chat = model<Chat>();
+  async createNewChat(): Promise<void> {
+    const result = await firstValueFrom(this.dialog.open(NewChatDialogComponent, {
+      width: '300px',
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms'
+    }).afterClosed());
 
-  newMessage = signal('');
-
-  scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
-
-  constructor() {
-    // FIX: Replaced subscription logic with an effect to automatically scroll to the bottom
-    // when new messages are added. Signals do not have a .subscribe() method.
-    // An effect is the correct reactive way to handle side effects like DOM manipulation.
-    effect(() => {
-      const container = this.scrollContainer();
-      if (container) {
-        // We read the messages signal here to create a dependency. The effect will
-        // re-run whenever new messages are added, scrolling to the latest one.
-        this.chatSvc.messages();
-        this.scrollToBottom(container.nativeElement);
-      }
-    });
-  }
-
-  ngOnInit(): void {}
-
-  sendMessage(): void {
-    const text = this.newMessage().trim();
-    if (text) {
-      this.chatSvc.sendMessage(text);
-      this.newMessage.set('');
-    }
-  }
-
-  private scrollToBottom(container: HTMLDivElement): void {
-    try {
-      // The effect runs after the view is rendered, so we can safely scroll.
-      container.scrollTop = container.scrollHeight;
-    } catch (err) {
-      console.error('Could not scroll to bottom:', err);
+    if (result) {
+      this.chatSvc.newChat(result);
     }
   }
 }

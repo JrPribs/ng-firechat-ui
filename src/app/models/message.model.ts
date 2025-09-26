@@ -1,8 +1,8 @@
 export interface Message {
-  id: number;
-  conversationId: number;
+  id?: string;
+  chatId?: string;
   text: string;
   username: string;
-  timestamp: Date;
-  avatarUrl: string;
+  timestamp: string;
+  avatarUrl?: string;
 }

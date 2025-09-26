@@ -1,17 +1,12 @@
 import {
-  ChangeDetectionStrategy, Component, inject, signal 
+  ChangeDetectionStrategy, Component
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ChatStore } from './state/chat.store';
 
 @Component({
   selector: 'app-root',
   imports: [ RouterOutlet ],
-  templateUrl: './app.html',
-  styleUrl: './app.css',
+  template: `<router-outlet></router-outlet>`,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class App {
-  protected readonly title = signal('Accordo IG Agent');
-  readonly store = inject(ChatStore);
-}
+export class App {}
