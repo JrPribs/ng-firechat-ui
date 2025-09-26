@@ -8,9 +8,9 @@ describe('NoActiveChat', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NoActiveChat]
+      imports: [ NoActiveChat ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(NoActiveChat);
     component = fixture.componentInstance;

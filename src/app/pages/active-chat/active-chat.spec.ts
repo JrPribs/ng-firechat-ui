@@ -8,9 +8,9 @@ describe('ActiveChat', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ActiveChat]
+      imports: [ ActiveChat ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ActiveChat);
     component = fixture.componentInstance;

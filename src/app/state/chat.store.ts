@@ -56,7 +56,9 @@ withHooks({
 
   readonly activeChatId = computed(() => this.activeChat()?.id);
   readonly activeChatUsername = computed(() => this.activeChat()?.username);
+  readonly activeChatRef = computed(() => doc(this.firestore, `chats/${this.activeChatId()}`));
   readonly activeChatMessagesRef = computed(() => collection(this.firestore, `chats/${this.activeChatId()}/messages`));
+
 
   async loadChat(chatId: string): Promise<void> {
     patchState(this, { isLoading: true });

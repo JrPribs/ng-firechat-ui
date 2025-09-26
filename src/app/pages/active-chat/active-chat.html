@@ -1,6 +1,6 @@
-<div class="flex flex-col h-full bg-black border-l border-gray-800">
+<div class="flex flex-col h-full bg-black border-l md:border-l-0 border-gray-800">
   <!-- Header -->
-  <header class="flex items-center p-4 border-b border-gray-800">
+  <header class="flex items-center p-3 md:p-4 border-b border-gray-800">
     <img
       [src]="`https://picsum.photos/seed/${chat()?.username}/48/48`"
       alt="AI Agent"
@@ -11,6 +11,27 @@
       <p class="text-sm text-gray-400">{{ chat()?.createdAt | date: 'short' }}</p>
     </div>
     <div class="flex items-center space-x-4 text-gray-400">
+      <!-- Mobile New Chat Button -->
+      <button
+        class="md:hidden text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2"
+        (click)="createNewChat()"
+        title="New Chat"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          />
+        </svg>
+      </button>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-6 w-6"
@@ -57,7 +78,7 @@
   </header>
 
   <!-- Messages -->
-  <div #scrollContainer class="flex-1 overflow-y-auto p-6 space-y-4">
+  <div #scrollContainer class="flex-1 overflow-y-auto p-3 md:p-6 space-y-4">
     @for (message of store.messages(); track message.id) {
       <app-chat-message [message]="message"></app-chat-message>
     }
@@ -86,8 +107,11 @@
   </div>
 
   <!-- Input -->
-  <footer class="p-4">
-    <form (ngSubmit)="sendMessage()" class="flex items-center bg-gray-800 rounded-full px-4 py-2">
+  <footer class="p-3 md:p-4">
+    <form
+      (ngSubmit)="sendMessage()"
+      class="flex items-center bg-gray-800 rounded-full px-3 md:px-4 py-2"
+    >
       <input
         type="text"
         [(ngModel)]="newMessage"

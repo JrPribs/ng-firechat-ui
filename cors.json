@@ -1,0 +1,22 @@
+[
+  {
+    "origin": ["https://accordo-agents.web.app", "http://localhost:4200"],
+    "method": ["GET", "POST", "HEAD"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Access-Control-Allow-Origin",
+      "Accept-Ranges",
+      "Content-Range",
+      "Cache-Control",
+      "Content-Disposition",
+      "Content-Encoding",
+      "Content-Language",
+      "Expires",
+      "Last-Modified",
+      "Pragma",
+      "Range"
+    ]
+  }
+]

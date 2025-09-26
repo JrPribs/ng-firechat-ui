@@ -8,4 +8,6 @@ export interface Chat {
   updatedAt?: Date;
   messages?: Message[];
   lastMessage?: string;
+  unread?: boolean;
+  totalMessages?: number;
 }

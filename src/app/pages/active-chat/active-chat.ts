@@ -1,13 +1,18 @@
 import {
-  Component, effect, ElementRef, inject, model, signal, viewChild
+  Component, effect, ElementRef, inject, model, signal, viewChild, OnInit, OnDestroy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatMessageComponent } from './components/chat-message/chat-message';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
-import { Firestore } from '@angular/fire/firestore';
+import {
+  Firestore, onSnapshot, Unsubscribe, updateDoc
+} from '@angular/fire/firestore';
 import { ChatStore } from '../../state/chat.store';
 import { Chat } from '../../models/chat.model';
+import { MatDialog } from '@angular/material/dialog';
+import { NewChatDialogComponent } from '../../components/new-chat-dialog/new-chat-dialog';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-active-chat',
@@ -19,15 +24,16 @@ import { Chat } from '../../models/chat.model';
   templateUrl: './active-chat.html',
   styleUrl: './active-chat.css'
 })
-export class ActiveChat {
+export class ActiveChat implements OnInit, OnDestroy {
   private chatSvc = inject(ChatService);
   private firestore = inject(Firestore);
   readonly store = inject(ChatStore);
+  readonly dialog = inject(MatDialog);
 
   chat = model<Chat>();
 
   newMessage = signal('');
-
+  readListener!: Unsubscribe;
   scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
 
   constructor() {
@@ -45,6 +51,16 @@ export class ActiveChat {
     });
   }
 
+  ngOnInit(): void {
+    this.readListener = onSnapshot(this.store.activeChatMessagesRef(), async (snapshot) => {
+      console.debug('snapshot', snapshot.docs.map(doc => doc.data()));
+      console.debug('activeChatRef', this.store.activeChatRef());
+      await updateDoc(this.store.activeChatRef(), {
+        unread: false
+      });
+
+    });
+  }
 
 
   sendMessage(): void {
@@ -55,6 +71,18 @@ export class ActiveChat {
     }
   }
 
+  async createNewChat(): Promise<void> {
+    const result = await firstValueFrom(this.dialog.open(NewChatDialogComponent, {
+      width: '300px',
+      enterAnimationDuration: '300ms',
+      exitAnimationDuration: '300ms'
+    }).afterClosed());
+
+    if (result) {
+      this.chatSvc.newChat(result);
+    }
+  }
+
   private scrollToBottom(container: HTMLDivElement): void {
     try {
       // The effect runs after the view is rendered, so we can safely scroll.
@@ -62,6 +90,10 @@ export class ActiveChat {
     } catch (err) {
       console.error('Could not scroll to bottom:', err);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.readListener();
   }
 
 }

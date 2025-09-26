@@ -3,12 +3,18 @@ import { getFirestore } from 'firebase-admin/firestore';
 import Anthropic from '@anthropic-ai/sdk';
 import { getMessagePrompt } from './prompts/message.prompt';
 import { SYSTEM_PROMPT } from './prompts/system.prompt';
-import { HttpsError, onCall, onRequest } from 'firebase-functions/https';
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
+import { logger } from 'firebase-functions/v2';
+
+const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
 
 // HTTP function to get AI agent response for a chat
-export const getAgentResponse = onCall(async (req, res) => {
+export const getAgentResponse = onCall(async (req) => {
   try {
     const db = getFirestore();
+
+    logger.info('getAgentResponse', { anthropicApiKey: anthropicApiKey.value() });
 
     const { chatId } = req.data as unknown as { chatId: string };
 
@@ -19,18 +25,18 @@ export const getAgentResponse = onCall(async (req, res) => {
       );
     }
 
-    // Get Anthropic API key from environment variables
-    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-    if (!anthropicApiKey) {
+
+     // Check if API key is set
+     if (!anthropicApiKey.value() && !process.env.ANTHROPIC_API_KEY) {
+      console.error('Anthropic API key not set');
       throw new HttpsError(
         'failed-precondition',
         'Anthropic API key not configured in environment variables.'
       );
     }
-
-    // Initialize Anthropic client with the API key
+    // Initialize Anthropic client
     const anthropic = new Anthropic({
-      apiKey: anthropicApiKey,
+      apiKey: anthropicApiKey.value(),
     });
 
     // Get all messages for the chat
@@ -134,5 +140,4 @@ export const getAgentResponse = onCall(async (req, res) => {
     );
   }
 });
-
 

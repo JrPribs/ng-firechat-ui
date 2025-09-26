@@ -31,6 +31,9 @@ export class ChatWindowComponent {
   readonly store = inject(ChatStore);
   readonly dialog = inject(MatDialog);
 
+  // Mobile sidebar state
+  mobileSidebarOpen = signal(false);
+
   async createNewChat(): Promise<void> {
     const result = await firstValueFrom(this.dialog.open(NewChatDialogComponent, {
       width: '300px',
@@ -41,5 +44,13 @@ export class ChatWindowComponent {
     if (result) {
       this.chatSvc.newChat(result);
     }
+  }
+
+  toggleMobileSidebar(): void {
+    this.mobileSidebarOpen.update(open => !open);
+  }
+
+  closeMobileSidebar(): void {
+    this.mobileSidebarOpen.set(false);
   }
 }
