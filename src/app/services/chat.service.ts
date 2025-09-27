@@ -85,7 +85,7 @@ export class ChatService {
 
     const agentFunction = httpsCallable(this.functions, 'getAgentResponse');
     const agentResponse = await agentFunction({ chatId });
-
+    this.store.setIsLoading(false);
     console.debug('agentResponse', agentResponse);
     console.debug('agentResponse.data', agentResponse.data);
   }

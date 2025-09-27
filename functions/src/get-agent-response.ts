@@ -139,7 +139,7 @@ export const getAgentResponse = onCall(
         const responseDelay = Math.floor(Math.random() * 55) + 5;
         collectiveResponseDelay += responseDelay;
 
-        db.collection(`chats/${chatId}/messages`).add({
+        await db.collection(`chats/${chatId}/messages`).add({
           chatId,
           username: 'Dr. Accordo',
           text: message,

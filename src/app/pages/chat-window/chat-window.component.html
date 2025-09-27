@@ -4,7 +4,7 @@
   >
     <!-- Mobile Top Bar -->
     <div
-      class="md:hidden flex items-center justify-between p-3 bg-black border-b border-gray-800 z-50"
+      class="md:hidden flex items-center justify-between p-3 bg-black border-b border-gray-800 z-40"
     >
       <button
         class="text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2 bg-black border border-gray-700"
@@ -54,13 +54,13 @@
       <!-- Sidebar / Conversations List -->
       <aside
         class="w-1/3 min-w-[280px] bg-black border-r border-gray-800 flex flex-col
-               md:relative md:translate-x-0 fixed inset-y-0 left-0 z-40
+               md:relative md:translate-x-0 fixed inset-y-0 left-0 z-50
                transition-transform duration-300 ease-in-out
                {{ store.mobileSidebarOpen() ? 'translate-x-0' : '-translate-x-full' }}"
       >
         <!-- Mobile Sidebar Backdrop -->
         <div
-          class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
           [class.hidden]="!store.mobileSidebarOpen()"
           (click)="store.closeMobileSidebar()"
           (keydown.escape)="store.closeMobileSidebar()"
@@ -77,8 +77,8 @@
       </aside>
 
       <!-- Chat Window -->
-      <section class="w-full md:w-2/3 flex-1 flex flex-col">
-        <div class="flex-1">
+      <section class="w-full md:w-2/3 flex-1 flex flex-col min-h-0">
+        <div class="flex-1 min-h-0">
           <router-outlet></router-outlet>
         </div>
         @if (!store.activeChatId()) {
