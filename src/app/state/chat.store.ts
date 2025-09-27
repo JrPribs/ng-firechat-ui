@@ -98,11 +98,15 @@ withHooks({
     patchState(this, { isLoading: false });
   }
 
-  toggleMobileSidebar(): void {
-    patchState(this, { mobileSidebarOpen: !this.mobileSidebarOpen() });
-  }
-
   closeMobileSidebar(): void {
     patchState(this, { mobileSidebarOpen: false });
+  }
+
+  setIsLoading(isLoading: boolean): void {
+    patchState(this, { isLoading });
+  }
+
+  toggleMobileSidebar(): void {
+    patchState(this, { mobileSidebarOpen: !this.mobileSidebarOpen() });
   }
 }

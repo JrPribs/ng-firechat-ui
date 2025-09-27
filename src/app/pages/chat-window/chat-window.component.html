@@ -1,60 +1,92 @@
 <main class="h-screen w-screen flex items-center justify-center p-4 bg-gray-900">
   <div
-    class="w-full max-w-6xl h-[90vh] max-h-[800px] flex rounded-lg overflow-hidden border border-gray-700 shadow-2xl relative"
+    class="w-full max-w-6xl h-[90vh] max-h-[800px] flex flex-col rounded-lg overflow-hidden border border-gray-700 shadow-2xl relative"
   >
-    <!-- Mobile Menu Toggle Button -->
-    <button
-      class="md:hidden absolute top-4 left-4 z-50 text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2 bg-black border border-gray-700"
-      (click)="store.toggleMobileSidebar()"
-      title="Toggle Menu"
+    <!-- Mobile Top Bar -->
+    <div
+      class="md:hidden flex items-center justify-between p-3 bg-black border-b border-gray-800 z-50"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+      <button
+        class="text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2 bg-black border border-gray-700"
+        [class.translate-x-64]="store.mobileSidebarOpen()"
+        (click)="store.toggleMobileSidebar()"
+        title="Toggle Menu"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"
-        />
-      </svg>
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
 
-    <!-- Sidebar / Conversations List -->
-    <aside
-      class="w-1/3 min-w-[280px] bg-black border-r border-gray-800 flex flex-col
-             md:relative md:translate-x-0 fixed inset-y-0 left-0 z-40
-             transition-transform duration-300 ease-in-out
-             {{ store.mobileSidebarOpen() ? 'translate-x-0' : '-translate-x-full' }}"
-    >
-      <!-- Mobile Sidebar Backdrop -->
-      <div
-        class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-        [class.hidden]="!store.mobileSidebarOpen()"
-        (click)="store.closeMobileSidebar()"
-        (keydown.escape)="store.closeMobileSidebar()"
-        tabindex="0"
-        role="button"
-        [attr.aria-label]="'Close sidebar'"
+      <button
+        class="text-white/90 hover:bg-purple-500/40 hover:text-white transition-all duration-300 cursor-pointer rounded-full p-2"
+        (click)="createNewChat()"
+        title="New Chat"
       >
-        <app-chat-list></app-chat-list>
-      </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          />
+        </svg>
+      </button>
+    </div>
 
-      <app-chat-list></app-chat-list>
-    </aside>
-
-    <!-- Chat Window -->
-    <section class="w-full md:w-2/3 flex-1 md:flex-initial">
-      <router-outlet></router-outlet>
-      @if (!store.activeChatId()) {
-        <div class="flex items-center justify-center h-full">
-          <p class="text-gray-400">Select a chat or start a new conversation</p>
+    <div class="flex flex-1 min-h-0">
+      <!-- Sidebar / Conversations List -->
+      <aside
+        class="w-1/3 min-w-[280px] bg-black border-r border-gray-800 flex flex-col
+               md:relative md:translate-x-0 fixed inset-y-0 left-0 z-40
+               transition-transform duration-300 ease-in-out
+               {{ store.mobileSidebarOpen() ? 'translate-x-0' : '-translate-x-full' }}"
+      >
+        <!-- Mobile Sidebar Backdrop -->
+        <div
+          class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          [class.hidden]="!store.mobileSidebarOpen()"
+          (click)="store.closeMobileSidebar()"
+          (keydown.escape)="store.closeMobileSidebar()"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Close sidebar'"
+        >
+          <app-chat-list></app-chat-list>
         </div>
-      }
-    </section>
+
+        <div class="hidden md:block">
+          <app-chat-list></app-chat-list>
+        </div>
+      </aside>
+
+      <!-- Chat Window -->
+      <section class="w-full md:w-2/3 flex-1 flex flex-col">
+        <div class="flex-1">
+          <router-outlet></router-outlet>
+        </div>
+        @if (!store.activeChatId()) {
+          <div class="flex items-center justify-center h-full">
+            <p class="text-gray-400">Select a chat or start a new conversation</p>
+          </div>
+        }
+      </section>
+    </div>
   </div>
 </main>

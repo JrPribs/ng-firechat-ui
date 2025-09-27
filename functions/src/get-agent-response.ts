@@ -9,6 +9,19 @@ import { logger } from 'firebase-functions/v2';
 
 export const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
 
+
+/* TODO: Update the response schema to provide (for each message if more than 1)
+ * - responseDelay (in seconds)
+ *   - multiple message responses should have a random delay between 5-60 seconds between each message
+ * - respondAtTimestamp
+ * - approvalRequired
+ * - confidence score
+ * - phase
+ *
+ */
+
+
+
 // HTTP function to get AI agent response for a chat
 export const getAgentResponse = onCall(
   { secrets: [anthropicApiKey] },
@@ -119,12 +132,28 @@ export const getAgentResponse = onCall(
         agentMessages = [aiResponse.trim()];
       }
 
-      if (agentMessages.length === 0) {
-        agentMessages = ['I understand. Let me know if you have any questions about chiropractic care!'];
+      let index = 0;
+      let collectiveResponseDelay = 0;
+
+      for (const message of agentMessages) {
+        const responseDelay = Math.floor(Math.random() * 55) + 5;
+        collectiveResponseDelay += responseDelay;
+
+        db.collection(`chats/${chatId}/messages`).add({
+          chatId,
+          username: 'Dr. Accordo',
+          text: message,
+          responseDelay: responseDelay,
+          respondAtTimestamp: new Date(Date.now() + collectiveResponseDelay * 1000).toISOString(),
+          approvalRequired: 'coming-soon',
+          confidenceScore: 'coming-soon',
+          phase: 'coming-soon',
+          timestamp: new Date().toISOString()
+        });
+
+        index++;
       }
 
-      // Return the first message as the primary response
-      // Additional messages could be handled by the client if needed
       return {
         message: agentMessages[0],
         allMessages: agentMessages,

@@ -24,7 +24,6 @@ export class ChatService {
   private initialMessages: Message[] = [];
 
   messages = signal<Message[]>(this.initialMessages);
-  isLoading = signal(false);
 
   async newChat(username: string): Promise<void> {
     console.debug('newChat', username);
@@ -72,16 +71,13 @@ export class ChatService {
 
     await addDoc(this.store.activeChatMessagesRef(), userMessage);
 
-    this.isLoading.set(true);
-
     await this.getAgentResponse(this.store.activeChatId()!);
-
-    this.isLoading.set(false);
   }
 
   private async getAgentResponse(chatId: string): Promise<void> {
     if (!chatId) return;
 
+    this.store.setIsLoading(true);
     // const chatMessagesRef = collection(this.firestore, `chats/${chatId}/messages`);
     // const chatMessages = await getDocs(chatMessagesRef);
     // const chatMessagesData = chatMessages.docs.map(doc => doc.data());

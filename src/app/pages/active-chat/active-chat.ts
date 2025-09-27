@@ -33,7 +33,7 @@ export class ActiveChat implements OnInit, OnDestroy {
   chat = model<Chat>();
 
   newMessage = signal('');
-  readListener!: Unsubscribe;
+  messagesListener!: Unsubscribe;
   scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
 
   constructor() {
@@ -52,13 +52,15 @@ export class ActiveChat implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.readListener = onSnapshot(this.store.activeChatMessagesRef(), async (snapshot) => {
+    this.messagesListener = onSnapshot(this.store.activeChatMessagesRef(), async (snapshot) => {
       console.debug('snapshot', snapshot.docs.map(doc => doc.data()));
       console.debug('activeChatRef', this.store.activeChatRef());
+
       await updateDoc(this.store.activeChatRef(), {
         unread: false
       });
 
+      this.store.setIsLoading(false);
     });
   }
 
@@ -93,7 +95,7 @@ export class ActiveChat implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.readListener();
+    this.messagesListener();
   }
 
 }

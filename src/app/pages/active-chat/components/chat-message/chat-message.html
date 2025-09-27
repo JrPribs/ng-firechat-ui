@@ -1,7 +1,6 @@
 <div class="flex items-end gap-3" [class.flex-row-reverse]="isUserMessage()">
-  @if (isUserMessage()) {
-    <img [src]="avatarUrl()" alt="Sender Avatar" class="w-8 h-8 rounded-full" />
-  }
+  <img [src]="avatarUrl()" alt="Sender Avatar" class="w-8 h-8 rounded-full" />
+
   <div
     class="flex flex-col"
     [class.items-start]="isUserMessage()"

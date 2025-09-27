@@ -39,7 +39,7 @@ export const updateChatLastMessage = onDocumentCreated(
       // Update the parent chat document with the latest message
       await db.collection("chats").doc(chatId).update({
         lastMessage: messageText,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
         totalMessages: totalMessages,
         unread: true
       });
