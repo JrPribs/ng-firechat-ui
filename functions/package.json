@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.1",
+    "@genkit-ai/compat-oai": "^1.20.0",
     "@genkit-ai/firebase": "^1.19.3",
     "@genkit-ai/googleai": "^1.19.3",
     "express": "^5.1.0",
