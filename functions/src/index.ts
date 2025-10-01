@@ -17,3 +17,4 @@ admin.initializeApp();
 export * from "./update-chat-last-message";
 export * from "./get-agent-response";
 export * from "./get-gpt-agent-response";
+export * from "./get-agent-response-genkit";
