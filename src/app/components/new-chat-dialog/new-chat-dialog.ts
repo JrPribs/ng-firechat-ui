@@ -15,6 +15,8 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { ModelProvider } from '../../models/chat.model';
 
 @Component({
   selector: 'app-new-chat-dialog',
@@ -27,7 +29,8 @@ import { MatInputModule } from '@angular/material/input';
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatSelectModule
   ],
   templateUrl: './new-chat-dialog.html',
   styleUrl: './new-chat-dialog.css',
@@ -36,4 +39,5 @@ import { MatInputModule } from '@angular/material/input';
 export class NewChatDialogComponent {
   readonly dialogRef = inject(MatDialogRef<NewChatDialogComponent>);
   readonly username = new FormControl('', [ Validators.required ]);
+  readonly modelProvider = new FormControl<ModelProvider>('claude', [ Validators.required ]);
 }

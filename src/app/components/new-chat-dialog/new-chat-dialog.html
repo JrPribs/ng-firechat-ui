@@ -7,13 +7,22 @@
       <mat-error>Username is required</mat-error>
     }
   </mat-form-field>
+
+  <mat-form-field class="w-full mt-2" appearance="outline">
+    <mat-label>Select AI Model</mat-label>
+    <mat-select [formControl]="modelProvider">
+      <mat-option value="claude">Claude</mat-option>
+      <mat-option value="genkit-claude">GenKit-Claude</mat-option>
+      <mat-option value="gpt-5">GPT-5</mat-option>
+    </mat-select>
+  </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button matButton mat-dialog-close>Cancel</button>
   <button
     matButton
     [disabled]="username.hasError('required')"
-    [mat-dialog-close]="username.value"
+    [mat-dialog-close]="{ username: username.value, modelProvider: modelProvider.value }"
     cdkFocusInitial
   >
     Create Chat

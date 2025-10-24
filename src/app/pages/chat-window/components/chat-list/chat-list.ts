@@ -33,7 +33,7 @@ export class ChatList {
     }).afterClosed());
 
     if (result) {
-      this.chatSvc.newChat(result);
+      this.chatSvc.newChat(result.username, result.modelProvider);
     }
   }
 }

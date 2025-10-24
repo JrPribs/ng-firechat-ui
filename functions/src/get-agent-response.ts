@@ -1,14 +1,10 @@
-
 import { getFirestore } from 'firebase-admin/firestore';
 import Anthropic from '@anthropic-ai/sdk';
 import { getMessagePrompt } from './prompts/message.prompt';
 import { SYSTEM_PROMPT } from './prompts/system.prompt';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
-import { defineSecret } from 'firebase-functions/params';
 import { logger } from 'firebase-functions/v2';
-
-export const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
-
+import { anthropicApiKey, webhookApiKey } from './config/secrets';
 
 /* TODO: Update the response schema to provide (for each message if more than 1)
  * - responseDelay (in seconds)
@@ -27,6 +23,16 @@ export const getAgentResponse = onCall(
   { secrets: [anthropicApiKey] },
   async (req) => {
     try {
+
+      const { apiKey } = req.data;
+      logger.info('incoming apiKey', { apiKey });
+      const validKey = webhookApiKey.value();
+
+      if (apiKey !== validKey) {
+        throw new HttpsError("permission-denied", "Invalid API key");
+      }
+
+
       const db = getFirestore();
 
       logger.info('getAgentResponse', { anthropicApiKey: anthropicApiKey.value() });

@@ -1,13 +1,11 @@
 import { getFirestore, type QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
-import { defineSecret } from 'firebase-functions/params';
 import { logger } from 'firebase-functions/v2';
 import { genkit, z } from 'genkit';
 import { openAI } from '@genkit-ai/compat-oai/openai';
 import { GPT_SYSTEM_PROMPT } from './prompts/system-gpt.prompt';
 import { getGptMessagePrompt } from './prompts/message-gpt.prompt';
-
-const openAiApiKey = defineSecret('OPENAI_API_KEY');
+import { openAiApiKey } from './config/secrets';
 
 const AgentMessageSchema = z.object({
   text: z.string().min(1),
