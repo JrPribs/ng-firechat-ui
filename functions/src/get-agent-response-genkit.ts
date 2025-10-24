@@ -1,6 +1,6 @@
 import { getFirestore } from 'firebase-admin/firestore';
-import { HttpsError, onCallGenkit } from 'firebase-functions/v2/https';
-import { logger } from 'firebase-functions/v2';
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import { logger, onInit } from 'firebase-functions/v2';
 import { genkit, z } from 'genkit';
 import { anthropic, claude35Sonnet } from 'genkitx-anthropic';
 import { getMessagePromptGenkit } from './prompts/message-genkit.prompt';
@@ -20,45 +20,32 @@ const GetAgentResponseOutput = z.object({
   timestamp: z.string(),
 });
 
-/**
- * Creates a Genkit AI instance with Anthropic plugin.
- * Must be called at runtime, not at module level, to access secrets.
- */
-const createAI = (apiKey: string) => {
-  return genkit({
+// Initialize Genkit instance and flow
+let ai: ReturnType<typeof genkit>;
+let agentResponseFlow!: ReturnType<ReturnType<typeof genkit>['defineFlow']>;
+
+// Configure Genkit at runtime using onInit hook to access secrets
+onInit(() => {
+  ai = genkit({
     plugins: [
       anthropic({
-        apiKey
+        apiKey: anthropicApiKey.value()
       })
     ],
-    model: claude35Sonnet,
   });
-};
 
-// Define the Genkit flow
-const agentResponseFlow = async (input: z.infer<typeof GetAgentResponseInput>) => {
-  const db = getFirestore();
-  const { chatId } = input;
-
-  // Access secret value at runtime
-  const apiKey = anthropicApiKey.value();
+  // Define the Genkit flow after ai is initialized
+  agentResponseFlow = ai.defineFlow({
+    name: 'agentResponseFlow',
+    inputSchema: GetAgentResponseInput,
+    outputSchema: GetAgentResponseOutput,
+  }, async (input) => {
+    const db = getFirestore();
+    const { chatId } = input;
 
   logger.info('getAgentResponseGenkit', {
-    chatId,
-    hasApiKey: !!apiKey
+    chatId
   });
-
-  // Check if API key is set
-  if (!apiKey) {
-    logger.error('Anthropic API key not set');
-    throw new HttpsError(
-      'failed-precondition',
-      'Anthropic API key not configured in environment variables.'
-    );
-  }
-
-  // Initialize AI at runtime with the secret value
-  const ai = createAI(apiKey);
 
   // Get all messages for the chat
   const messagesRef = db.collection('chats').doc(chatId).collection('messages');
@@ -149,19 +136,26 @@ const agentResponseFlow = async (input: z.infer<typeof GetAgentResponseInput>) =
     });
   }
 
-  return {
-    message: agentMessages[0],
-    allMessages: agentMessages,
-    chatId: chatId,
-    timestamp: new Date().toISOString()
-  };
-};
+    return {
+      message: agentMessages[0],
+      allMessages: agentMessages,
+      chatId: chatId,
+      timestamp: new Date().toISOString()
+    };
+  });
+});
 
-// Export the callable Cloud Function
-export const getAgentResponseGenkit = onCallGenkit(
-  {
-    secrets: [anthropicApiKey],
-    cors: true,
-  },
-  agentResponseFlow
-);
+// Export the callable Cloud Function using onCall with manual flow invocation
+export const getAgentResponseGenkit = onCall({
+  secrets: [anthropicApiKey],
+  cors: true,
+}, async (request) => {
+  // Validate input
+  const result = GetAgentResponseInput.safeParse(request.data);
+  if (!result.success) {
+    throw new HttpsError('invalid-argument', 'Invalid input data');
+  }
+
+  // Invoke the flow
+  return await agentResponseFlow(result.data);
+});

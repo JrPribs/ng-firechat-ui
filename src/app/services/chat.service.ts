@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 import { ModelProvider } from '../models/chat.model';
-
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -90,20 +90,23 @@ export class ChatService {
     // Call the appropriate function based on model provider
     let functionName: string;
     switch (modelProvider) {
-      case 'genkit-claude':
-        functionName = 'getAgentResponseGenkit';
-        break;
-      case 'gpt-5':
-        functionName = 'getGptAgentResponse';
-        break;
-      case 'claude':
-      default:
-        functionName = 'getAgentResponse';
-        break;
+    case 'genkit-claude':
+      functionName = 'getAgentResponseGenkit';
+      break;
+    case 'gpt-5':
+      functionName = 'getGptAgentResponse';
+      break;
+    case 'claude':
+    default:
+      functionName = 'getAgentResponse';
+      break;
     }
 
     const agentFunction = httpsCallable(this.functions, functionName);
-    const agentResponse = await agentFunction({ chatId });
+    const agentResponse = await agentFunction({
+      chatId,
+      apiKey: environment.webhookApiKey
+    });
     this.store.setIsLoading(false);
     console.debug('agentResponse', agentResponse);
     console.debug('agentResponse.data', agentResponse.data);
