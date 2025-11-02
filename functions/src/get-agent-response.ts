@@ -2,7 +2,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import Anthropic from '@anthropic-ai/sdk';
 import { getMessagePrompt } from './prompts/message.prompt';
 import { SYSTEM_PROMPT } from './prompts/system.prompt';
-import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import { HttpsError, onCall, onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions/v2';
 import { anthropicApiKey, webhookApiKey } from './config/secrets';
 
@@ -34,8 +34,6 @@ export const getAgentResponse = onCall(
 
 
       const db = getFirestore();
-
-      logger.info('getAgentResponse', { anthropicApiKey: anthropicApiKey.value() });
 
       const { chatId } = req.data as unknown as { chatId: string };
 
@@ -106,6 +104,184 @@ export const getAgentResponse = onCall(
         messages: [
           {
             role: "user",
+            content: getMessagePrompt(username, messageNumber, history)
+          }
+        ]
+      });
+
+      if (!response.content || response.content.length === 0) {
+        throw new HttpsError(
+          'internal',
+          'No response from AI service.'
+        );
+      }
+
+      const contentBlock = response.content[0];
+      const aiResponse = contentBlock.type === 'text' ? contentBlock.text : '';
+
+      if (!aiResponse) {
+        throw new HttpsError(
+          'internal',
+          'Empty response from AI service.'
+        );
+      }
+
+      // Extract messages from AI response (between <response> tags)
+      const responseMatch = aiResponse.match(/<response>([\s\S]*?)<\/response>/);
+      let agentMessages: string[];
+
+      if (responseMatch) {
+        agentMessages = responseMatch[1].split('|||').map((msg: string) => msg.trim()).filter((msg: string) => msg.length > 0);
+      } else {
+        agentMessages = [aiResponse.trim()];
+      }
+
+      let index = 0;
+      let collectiveResponseDelay = 0;
+
+      for (const message of agentMessages) {
+        const responseDelay = Math.floor(Math.random() * 55) + 5;
+        collectiveResponseDelay += responseDelay;
+
+        await db.collection(`chats/${chatId}/messages`).add({
+          chatId,
+          username: 'Dr. Accordo',
+          text: message,
+          responseDelay: responseDelay,
+          respondAtTimestamp: new Date(Date.now() + collectiveResponseDelay * 1000).toISOString(),
+          approvalRequired: 'coming-soon',
+          confidenceScore: 'coming-soon',
+          phase: 'coming-soon',
+          timestamp: new Date().toISOString()
+        });
+
+        index++;
+      }
+
+      return {
+        message: agentMessages[0],
+        allMessages: agentMessages,
+        chatId: chatId,
+        timestamp: new Date().toISOString()
+      };
+
+    } catch (error) {
+      console.error('Error getting agent response:', error);
+
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+
+      throw new HttpsError(
+        'internal',
+        'Failed to get agent response',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+);
+
+
+
+export const getAgentResponseHttp = onRequest(
+  {
+    cors: false,
+    secrets: [
+      webhookApiKey,
+      anthropicApiKey
+    ]
+  },
+  async (req: any, res: any): Promise<any> => {
+    try {
+
+      const apiKey = req?.headers?.['x-api-key'];
+      logger.info('incoming apiKey', apiKey );
+      const validKey = webhookApiKey.value();
+
+      if (apiKey !== validKey) {
+        throw new HttpsError("permission-denied", "Invalid API key");
+      }
+
+      const db = getFirestore();
+
+      console.log('body', req.body);
+
+      const chatId = req.body?.chatId ?? db.collection('chats').doc().id;
+
+      if (!chatId) {
+       logger.log('No chat id provided, initial chat...');
+
+       console.log('body', req.body);
+
+       console.log('body', JSON.stringify(req.body, null, 2));
+
+       /* NOTE: chatId needs to be captured and added to the gohighlevel contact
+        * then we need to pull the chat from firestore
+        *  if the chat is not found, we need to create a new chat in the database (pulling it from instagram)
+        *  then we can provide the right info to the agent
+        *  and return the response to the client
+        */
+
+
+      }
+
+
+      // Check if API key is set
+      if (!anthropicApiKey.value()) {
+        console.error('Anthropic API key not set');
+        throw new HttpsError(
+          'failed-precondition',
+          'Anthropic API key not configured in environment variables.'
+        );
+      }
+      // Initialize Anthropic client
+      const anthropic = new Anthropic({
+        apiKey: anthropicApiKey.value(),
+      });
+
+      // Get all messages in chronological order (no role mapping needed)
+      /* NOTE gohighlevel shape:
+      *  "message": {
+      *    "type": 18,
+      *    "id": "dm_9876543210",
+      *    "timestamp": "2025-10-24T14:00:00Z",
+      *    "from": "jane_doe",
+      *    "to": "accordo_chiropractic",
+      *    "body": "Hey, I’ve been having some lower back pain lately and was wondering if chiropractic care could help?",
+      *    "attachments": []
+      *  }
+      */
+      const messages = [`
+        user: ${req?.body?.message?.from}
+        message: ${req?.body?.message?.body}
+        timestamp: ${req?.body?.message?.timestamp}
+      `];
+
+      // Get chat document to get username
+      // const chatDoc = await db.collection('chats').doc(chatId).get();
+      // if (!chatDoc.exists) {
+      //   throw new HttpsError(
+      //     'not-found',
+      //     'Chat not found.'
+      //   );
+      // }
+
+      // const chatData = chatDoc.data();
+      // const username = chatData?.username || 'User';
+      const messageNumber = messages.length;
+      const username = req?.body?.message?.from || 'User';
+      // Build conversation history string
+      const history = messages.join('\n');
+
+      // Get AI response using Anthropic
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 20000,
+        temperature: 1,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user", // user or assistant
             content: getMessagePrompt(username, messageNumber, history)
           }
         ]
